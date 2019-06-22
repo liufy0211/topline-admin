@@ -1,0 +1,2 @@
+# ESLint 忽略配置文件，可以将不需要校验的相关文件配置到这里
+src/vendor/gt.js
