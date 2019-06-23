@@ -51,7 +51,7 @@
 <script>
 import axios from 'axios'
 import '@/vendor/gt' // 引入极验 Javascript SDK文件，通过 window.initGeetest 使用
-const initCodeTimeSeconds = 10
+const initCodeTimeSeconds = 60
 export default {
   name: 'AppLogin',
   data () {
