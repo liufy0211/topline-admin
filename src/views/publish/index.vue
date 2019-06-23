@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <p>Home Component</p>
-  </div>
+ <div>
+   <p>Public Component</p>
+ </div>
 </template>
 
 <script>
 export default {
-  name: 'AppHome',
-  date () {
+  name: '',
+  data () {
     return {}
   }
 }

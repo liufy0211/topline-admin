@@ -14,10 +14,23 @@ export default new Router({
     //   component: () => import('@/views/home')
 
     // },
-    {
-      name: 'layout',
+    { // layout 显示到App根组件的路由出口
+      // name: 'layout',  // 使用JavaScript 命名路由导航不会渲染默认子路由
       path: '/',
-      component: () => import('@/views/layout')
+      component: () => import('@/views/layout'),
+      children: [ // 所有children 路由都显示到父路由的 router-view中
+        {
+          name: 'home',
+          path: '', // 父路由的默认内容 当匹配到/就把path为空的这个组件作为router-view的默认内容
+          component: () => import('@/views/home')
+        },
+        {
+          name: 'publish',
+          path: '/publish',
+          component: () => import('@/views/publish')
+        }
+      ]
+
     },
     {
       name: 'login',
