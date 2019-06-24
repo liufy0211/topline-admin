@@ -99,7 +99,9 @@ export default {
         url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
         data: this.form
       }).then(res => { // >=200 && <400 的状态码会进入 then 成功
-        console.log(res.data)
+        // console.log(res.data)
+        const userInfo = res.data.data
+        window.localStorage.setItem('user_info', JSON.stringify(userInfo))
         this.$message({
           message: '登录成功',
           type: 'success'
