@@ -49,9 +49,10 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 import '@/vendor/gt' // 引入极验 Javascript SDK文件，通过 window.initGeetest 使用
 import { saveUser } from '@/utils/auth' // 按需加载，加载模块中非 export default 成员
+import initGeetest from '@/utils/init-geetest'
 const initCodeTimeSeconds = 60
 export default {
   name: 'AppLogin',
@@ -94,13 +95,14 @@ export default {
         this.submitLogin()
       })
     },
-    submitLogin () {
-      axios({
-        method: 'POST',
-        url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
-        data: this.form
-      }).then(res => { // >=200 && <400 的状态码会进入 then 成功
-        // console.log(res.data)
+    async submitLogin () {
+      try {
+        const res = await this.$http({
+          method: 'POST',
+          url: '/authorizations',
+          data: this.form
+        })
+        // res 就是then接收的那个参数，then接收的那个参数就是resolve那个参数
         const userInfo = res.data.data
         // window.localStorage.setItem('user_info', JSON.stringify(userInfo))
         saveUser(userInfo)
@@ -111,9 +113,9 @@ export default {
         this.$router.push({
           name: 'home'
         })
-      }).catch((e) => {
+      } catch (err) {
         this.$message.error('登录失败，手机号或验证码错误')
-      }) // >= 400 的状态码都会进入这里 e 错误对象
+      }
     },
     handleSendCode () {
       // 验证手机号是否有效
@@ -129,58 +131,53 @@ export default {
     /*
       验证通过,初始化人机交互验证码
     */
-    showGeetest () {
+    async showGeetest () {
       // 任何函数中的 function 内部的 this 指向 window
       const { mobile } = this.form
-      axios({
+      // axios 返回promise 对象
+      const res = await this.$http({
         method: 'GET',
-        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
-      }).then(res => {
-        // console.log(res.data)
-        const { data } = res.data
-        window.initGeetest({
-          // 以下配置参数来自服务端 SDK
-          gt: data.gt,
-          challenge: data.challenge,
-          offline: !data.success,
-          new_captcha: data.new_captcha,
-          product: 'bind' // 隐藏，直接弹出式
-        }, captchaObj => {
-          // console.log(captchaObj) captchaObj 验证对象 有一些事件
-          captchaObj.onReady(() => {
-            // 验证码ready之后才能调用verify方法显示验证码
-            captchaObj.verify() // 弹出验证码内容框
-          }).onSuccess(() => {
-            // your code   人机交互验证通过
-            // console.log(captchaObj.getValidate())
-            const {
-              geetest_challenge: challenge,
-              geetest_seccode: seccode,
-              geetest_validate: validate } = captchaObj.getValidate()
-
-            axios({
-              method: 'GET',
-              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${mobile}`,
-              params: {
-                challenge,
-                validate,
-                seccode
-              }
-            }).then(res => {
-              // 发送短信成功，开始倒计时
-              // console.log(res.data)
-              // 开启倒计时效果
-              this.codeCountDown()
-            })
-          }).onError(function () {
-            // your code
-          })
-
-          // 在这里注册“发送验证码”按钮的点击事件，然后验证用户是否输入手机号以及手机号格式是否正确，没有问题：
-          // captchaObj.verify
-        })
+        url: `/captchas/${mobile}`
       })
+      // console.log(res.data)
+      const { data } = res.data
+      const captchaObj = await initGeetest({
+        // 以下配置参数来自服务端 SDK
+        gt: data.gt,
+        challenge: data.challenge,
+        offline: !data.success,
+        new_captcha: data.new_captcha,
+        product: 'bind' // 隐藏，直接弹出式
+      })
+      captchaObj.onReady(() => { // console.log(captchaObj) captchaObj 验证对象 有一些事件
+        // 验证码ready之后才能调用verify方法显示验证码
+        captchaObj.verify() // 弹出验证码内容框
+      }).onSuccess(async () => {
+        // your code   人机交互验证通过
+        // console.log(captchaObj.getValidate())
+        const {
+          geetest_challenge: challenge,
+          geetest_seccode: seccode,
+          geetest_validate: validate } = captchaObj.getValidate()
+        // 发送短信
+        await this.$http({
+          method: 'GET',
+          url: `/sms/codes/${mobile}`,
+          params: {
+            challenge,
+            validate,
+            seccode
+          }
+        })
+        // 发送短信成功，开始倒计时
+        // console.log(res.data)
+        // 开启倒计时效果
+        this.codeCountDown()
+      })
+      // 在这里注册“发送验证码”按钮的点击事件，然后验证用户是否输入手机号以及手机号格式是否正确，没有问题：
+      // captchaObj.verify
     },
+
     /*
       验证码倒计时
     */
