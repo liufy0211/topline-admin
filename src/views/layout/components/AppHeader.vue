@@ -11,10 +11,10 @@
           <el-dropdown-item command="a">用户设置</el-dropdown-item>
           <el-dropdown-item command="b">git地址</el-dropdown-item>
           <hr>
+          <el-dropdown-item @click.native="handleLogout">退出</el-dropdown-item>
           <!--
             我们可以使用 .native 事件修饰符将原生的 html 事件注册到组件的根元素
            -->
-          <el-dropdown-item @click.native="handleLogout">退出</el-dropdown-item>
           <!-- <el-dropdown-item command="c">退出</el-dropdown-item> -->
         </el-dropdown-menu>
       </el-dropdown>

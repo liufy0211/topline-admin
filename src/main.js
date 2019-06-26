@@ -4,10 +4,10 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import 'nprogress/nprogress.css'
 import axios from 'axios'
-import { getUser } from '@/utils/auth'
+import { getUser, removeUser } from '@/utils/auth'
 // 先找文件，没有就找目录
 // 如果找到目录，优先加载目录中的index
-import router from './router'
+import router from './router' // 你在这人访问的router 和你在组件中访问的 this.$router是一个东西
 // 引入公共样式文件，最好在element 样式文件之后，可以自定义修改element内置样式
 import './styles/index.less'
 
@@ -28,6 +28,7 @@ axios.interceptors.request.use(config => {
   // 如果有 user 数据，则往本次请求中添加用户 token
   if (user) {
     config.headers.Authorization = `Bearer ${user.token}`
+    // config.headers.Authorization = `Bearer 123` 只为测试
   }
 
   // return config 是允许请求发送的开关
@@ -40,7 +41,7 @@ axios.interceptors.request.use(config => {
 /**
  * Axios 响应拦截器：axios 收到的响应会先经过这里
  */
-axios.interceptors.response.use(response => {
+axios.interceptors.response.use(response => { // >= 200 && 400 的状态码会进入这里
   // console.log('进入响应拦截器了', response)
   // response 就是响应结果对象
   // 这里将 responent 原样返回,那么你发请求的第二方收到的就是 response
@@ -50,7 +51,18 @@ axios.interceptors.response.use(response => {
   } else {
     return response.data
   }
-}, error => {
+}, error => { // >= 400 的状态码会进入这里
+  // console.log('状态码异常', error)
+  // console.dir(error) 错误对象
+  // 如果用户 token 无效, 让其跳转到登录页面
+  if (error.response.status === 401) {
+    // 清除本地存储中的无效 token 的用户信息
+    removeUser()
+    // 跳转到用户登录页
+    router.push({
+      name: 'login'
+    })
+  }
   return Promise.reject(error)
 })
 
