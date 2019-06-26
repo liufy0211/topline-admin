@@ -52,6 +52,7 @@
 </template>
 
 <script>
+// import { getUser } from '@/utils/auth'
 export default {
   name: 'ArticleList',
   data () {
@@ -73,6 +74,26 @@ export default {
         name: '王小虎',
         address: '上海市普陀区金沙江路 1516 弄'
       }]
+    }
+  },
+
+  created () {
+    this.loadArticles()
+  },
+
+  methods: {
+    async loadArticles () {
+      // const token = getUser().token
+      // 除了登录相关接口之后。其他接口都必须在请求头中通过 Authorization 字段提供用户 token
+      // 当我们登录成功，服务端会生成一个 token 令牌，放到用户信息中
+      const data = await this.$http({
+        method: 'GET',
+        url: '/articles'
+        // headers: {  // 自定义请求头
+        //   Authorization: `Bearer ${token}`  // 后端要求：将token以'Bearer token'的数据格式放到请求头的Authorization字段中
+        // }
+      })
+      console.log(data)
     }
   }
 }

@@ -97,13 +97,13 @@ export default {
     },
     async submitLogin () {
       try {
-        const res = await this.$http({
+        const userInfo = await this.$http({
           method: 'POST',
           url: '/authorizations',
           data: this.form
         })
         // res 就是then接收的那个参数，then接收的那个参数就是resolve那个参数
-        const userInfo = res.data.data
+        // const userInfo = res.data.data
         // window.localStorage.setItem('user_info', JSON.stringify(userInfo))
         saveUser(userInfo)
         this.$message({
@@ -135,12 +135,12 @@ export default {
       // 任何函数中的 function 内部的 this 指向 window
       const { mobile } = this.form
       // axios 返回promise 对象
-      const res = await this.$http({
+      const data = await this.$http({
         method: 'GET',
         url: `/captchas/${mobile}`
       })
       // console.log(res.data)
-      const { data } = res.data
+      // const { data } = res.data
       const captchaObj = await initGeetest({
         // 以下配置参数来自服务端 SDK
         gt: data.gt,
