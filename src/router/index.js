@@ -64,6 +64,11 @@ router.beforeEach((to, from, next) => {
     // 非登录页面
     // 没有登录，跳转到登录页
     if (!userInfo) {
+      // 如果是来自登录页的页面，是不会重新进行页面导航的，也就不会触发后面的 afterEach 钩子
+      // 所有在这里手动结束动画，防止出现在登录页访问其他页面顶部一致loading的问题
+      if (from.path === '/login') {
+        nprogress.done()
+      }
       next({ name: 'login' })
       // next('/login')
       // next({ path: '/login' })
