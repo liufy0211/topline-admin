@@ -29,8 +29,11 @@
           </el-select>
         </el-form-item>
         <el-form-item label="时间">
+          <!-- 不绑定v-model change时间不触发 api说明 实际上我们要的不是 range_date 它只是为了触发change事件 事件不触发我们也没办法处理我们想要的时间格式-->
           <el-date-picker
-            v-model="filterParams.begin_pubdate"
+            value-format="yyyy-MM-dd"
+            v-model="range_date"
+            @change="handleDateChange"
             type="daterange"
             range-separator="至"
             start-placeholder="开始日期"
@@ -168,6 +171,7 @@ export default {
         begin_pubdate: '', // 开始时间
         end_pubdate: '' // 结束时间
       },
+      range_date: '', // 时间范围绑定值，这个字段的意义是为了绑定 date 组件出发 change 事件
       channels: [] // 所有频道
     }
   },
@@ -178,6 +182,12 @@ export default {
   },
 
   methods: {
+    // value 日期组件的值
+    handleDateChange (value) {
+      // console.log(value)
+      this.filterParams.begin_pubdate = value[0]
+      this.filterParams.end_pubdate = value[1]
+    },
     async loadChannels () {
       try {
         const data = await this.$http({
