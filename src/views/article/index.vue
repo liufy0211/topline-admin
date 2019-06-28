@@ -24,7 +24,7 @@
               v-for="item in channels"
               :key="item.id"
               :label="item.name"
-              value="item.id"
+              :value="item.id"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -41,7 +41,11 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">查询</el-button>
+          <el-button
+          type="primary"
+          @click="handleFilter"
+          :loading="articleLoading"
+          >查询</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -49,7 +53,7 @@
     <!-- 文章列表 -->
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>一共有xxx条数据</span>
+        <span>一共有<strong>{{ totalCount }}</strong>条数据</span>
         <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
       </div>
       <!--
@@ -117,9 +121,12 @@
             page-size 配置每页大小，默认是 10
             total 用来配置总记录数
             分页组件会根据每页大小和总记录数进行分页
+            current-page 当前高龄的页码，需要和数据保持同步，否则可能会出现数据页码改变，视图页码没变的情况
             -->
+            <!-- :current-page="page" 高亮的页面状态 数据回到第一页，页码也得回到第一页 -->
         <el-pagination
           background
+          :current-page="page"
           layout="prev, pager, next"
           :page-size="pageSize"
           :total="totalCount"
@@ -201,20 +208,43 @@ export default {
         this.$message.error('获取频道数据失败')
       }
     },
-    onSubmit () {},
+    handleFilter () {
+      // 点击查询按钮，根据表单中的数据查询文章列表
+      this.page = 1 // 查询从第一页开始加载数据
+      this.loadArticles()
+    },
     async loadArticles () {
       // 请求开始，加载 loading
       this.articleLoading = true
       // const token = getUser().token
       // 除了登录相关接口之后。其他接口都必须在请求头中通过 Authorization 字段提供用户 token
       // 当我们登录成功，服务端会生成一个 token 令牌，放到用户信息中
+
+      const filterData = {}
+      // 无效数据判断
+      for (let key in this.filterParams) {
+        const item = this.filterParams[key]
+        if (item !== null && item !== undefined && item !== '') {
+          filterData[key] = item
+        }
+        // 数据中的0 参与布尔值运算是 false 不会进来
+        // if (item) {
+        //   filterData[key] = item
+        // }
+      }
       const data = await this.$http({
         method: 'GET',
         url: '/articles',
         params: {
           page: this.page, // 页码
-          per_page: this.pageSize // 每页数量
+          per_page: this.pageSize, // 每页数量
+          ...filterData
         }
+        // params: Object.assign({
+        //   page: this.page, // 页码
+        //   per_page: this.pageSize, // 每页数量
+        //   //...filterData  filterData 混入当前对象中，对象混入语法
+        // }, filterData)
         // headers: {  // 自定义请求头
         //   Authorization: `Bearer ${token}`  // 后端要求：将token以'Bearer token'的数据格式放到请求头的Authorization字段中
         // }
