@@ -110,9 +110,9 @@
           </el-table-column>
           <el-table-column
             label="操作">
-            <template>
+            <template slot-scope="scope">
               <el-button size="mini" type="primary" plain>修改</el-button>
-              <el-button size="mini" type="danger" plain>删除</el-button>
+              <el-button size="mini" type="danger" plain @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -189,6 +189,45 @@ export default {
   },
 
   methods: {
+    async handleDelete (item) {
+      // console.log(item.id.toString())
+      try {
+        // 删除确认提示
+        await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        // 如果手动 catch 了它的异常，还是会被外部的try-catch捕获到
+        // 但是代码依然可以继续往后执行
+        // .catch(() => {
+        //   this.$message({
+        //     type: 'info',
+        //     message: '已取消删除'
+        //   });
+        // })
+        // 确认：执行删除操作
+        await this.$http({
+          method: 'DELETE',
+          url: `/articles/${item.id}`
+        })
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+        // 删除成功重新加载数据列表 loadArticles()是async函数 返回promise
+        this.loadArticles()
+      } catch (err) {
+        if (err === 'cancel') {
+          return this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        }
+        this.$message.error('删除失败')
+        // console.log(err) cancel
+      }
+    },
     // value 日期组件的值
     handleDateChange (value) {
       // console.log(value)
@@ -214,47 +253,51 @@ export default {
       this.loadArticles()
     },
     async loadArticles () {
-      // 请求开始，加载 loading
-      this.articleLoading = true
-      // const token = getUser().token
-      // 除了登录相关接口之后。其他接口都必须在请求头中通过 Authorization 字段提供用户 token
-      // 当我们登录成功，服务端会生成一个 token 令牌，放到用户信息中
+      try {
+        // 请求开始，加载 loading
+        this.articleLoading = true
+        // const token = getUser().token
+        // 除了登录相关接口之后。其他接口都必须在请求头中通过 Authorization 字段提供用户 token
+        // 当我们登录成功，服务端会生成一个 token 令牌，放到用户信息中
 
-      const filterData = {}
-      // 无效数据判断
-      for (let key in this.filterParams) {
-        const item = this.filterParams[key]
-        if (item !== null && item !== undefined && item !== '') {
-          filterData[key] = item
+        const filterData = {}
+        // 无效数据判断
+        for (let key in this.filterParams) {
+          const item = this.filterParams[key]
+          if (item !== null && item !== undefined && item !== '') {
+            filterData[key] = item
+          }
+          // 数据中的0 参与布尔值运算是 false 不会进来
+          // if (item) {
+          //   filterData[key] = item
+          // }
         }
-        // 数据中的0 参与布尔值运算是 false 不会进来
-        // if (item) {
-        //   filterData[key] = item
-        // }
+        const data = await this.$http({
+          method: 'GET',
+          url: '/articles',
+          params: {
+            page: this.page, // 页码
+            per_page: this.pageSize, // 每页数量
+            ...filterData
+          }
+          // params: Object.assign({
+          //   page: this.page, // 页码
+          //   per_page: this.pageSize, // 每页数量
+          //   //...filterData  filterData 混入当前对象中，对象混入语法
+          // }, filterData)
+          // headers: {  // 自定义请求头
+          //   Authorization: `Bearer ${token}`  // 后端要求：将token以'Bearer token'的数据格式放到请求头的Authorization字段中
+          // }
+        })
+        // console.log(data)
+        this.articles = data.results
+        this.totalCount = data.total_count
+
+        // 请求结束，停止 loading
+        this.articleLoading = false
+      } catch (err) {
+        this.$message.error('加载文章列表失败', err)
       }
-      const data = await this.$http({
-        method: 'GET',
-        url: '/articles',
-        params: {
-          page: this.page, // 页码
-          per_page: this.pageSize, // 每页数量
-          ...filterData
-        }
-        // params: Object.assign({
-        //   page: this.page, // 页码
-        //   per_page: this.pageSize, // 每页数量
-        //   //...filterData  filterData 混入当前对象中，对象混入语法
-        // }, filterData)
-        // headers: {  // 自定义请求头
-        //   Authorization: `Bearer ${token}`  // 后端要求：将token以'Bearer token'的数据格式放到请求头的Authorization字段中
-        // }
-      })
-      // console.log(data)
-      this.articles = data.results
-      this.totalCount = data.total_count
-
-      // 请求结束，停止 loading
-      this.articleLoading = false
     },
     handleCurrentChange (page) {
       // console.log(page) 将数据中的页码修改为当前最新改变的数据页码
@@ -264,6 +307,20 @@ export default {
     }
   }
 }
+/*
+  注意：程序中的数据id和服务端返回的原始数据id不一致
+  原因是该数字id超出了Javascript的安全整数范围，无法精确表示，会出现偏差
+  Javascript 最大能表示的安全整数范围是：Number.MAX_SAFE_INTEGER 9007199254740991
+  服务端返回的原始数据 肯定是超出了9007199254740991，JavaScript 无法安全表示
+
+  这里我们可以使用一个第三方包 json-bigint, 配置axios手动解析后端返回的JSON格式数据
+  axios 解析完的对象中的数字已经有问题了
+  对于这种问题，axios 给你提供了一个API，可以手动解析原始数据
+  我们就可以在axios提供的那个API中使用json-bigint去解析含有超出安全整数范围的json内容数据
+
+  它会将json转为JavaScript对象，它自动判断内容中数字如果超出安全整数范围，自动处理成其他格式
+  JSONbig.parse(json)
+*/
 </script>
 
 <style lang="less" scoped>
