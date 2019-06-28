@@ -20,8 +20,12 @@
     :router="true"
   >
     <el-menu-item index="/">
-      <i class="el-icon-menu"></i>
+      <i class="iconfont iconfangzi"></i>
       <span slot="title">首页</span>
+    </el-menu-item>
+     <el-menu-item index="">
+      <i class="iconfont iconedit"></i>
+      <span slot="title">发头条</span>
     </el-menu-item>
     <el-submenu index="1">
       <template slot="title">
@@ -45,6 +49,14 @@
           <span slot="title">素材管理</span>
         </el-menu-item>
       </el-submenu>
+    <el-menu-item index="">
+      <i class="el-icon-menu"></i>
+      <span slot="title">评论管理</span>
+    </el-menu-item>
+      <el-menu-item index="">
+      <i class="iconfont iconimage-upload"></i>
+      <span slot="title">素材管理</span>
+    </el-menu-item>
     <el-submenu index="2">
       <template slot="title">
         <i class="el-icon-location"></i>
@@ -64,7 +76,7 @@
       </el-menu-item>
       </el-submenu>
      <el-menu-item index="3">
-      <i class="el-icon-menu"></i>
+      <i class="iconfont icon111"></i>
       <span slot="title">账户管理</span>
     </el-menu-item>
   </el-menu>
