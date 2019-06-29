@@ -22,6 +22,12 @@
               @focus="onEditorFocus($event)" 当它聚焦的时候
               @ready="onEditorReady($event)" 当富文本编辑器渲染注册好的时候
             -->
+            <!--
+              了解base64 编码之后的字符串
+              图片除了可以src指向外部文件链接||内置到html页面当中（怎么内置呢？有一套base64固定的编码规则，把图片转换成字符串，字符串放到src这里）
+              假如网页中有非常小的图片，可以把它转换成base64字符串内置到网页中，减少请求次数
+              富文本编辑器上传图片默认把图片做了base64转码，插入img标签进来，往服务器存的话，是base64转码之后的图片，文件越多，下载页面查看的时候就越慢
+             -->
             <quill-editor v-model="articleForm.content"
               ref="myQuillEditor"
               :options="editorOption">
@@ -89,23 +95,59 @@ export default {
       editorOption: {} // 富文本编辑器配置选项
     }
   },
+  created () {
+    if (this.$route.name === 'publish-edit') {
+      this.loadArticle()
+    }
+  },
+
   methods: {
+    async loadArticle () {
+      try {
+        const data = await this.$http({
+          method: 'GET',
+          url: `/articles/${this.$route.params.id}`
+        })
+        // console.log(data)
+        this.articleForm = data
+      } catch (err) {
+        console.log(err)
+        this.$message.error('获取文章失败')
+      }
+    },
     async handlePublish (draft) {
       try {
-        await this.$http({
-          method: 'POST',
-          url: '/articles',
-          params: {
-            draft
-          },
-          data: this.articleForm
-        })
-        this.$message({
-          type: 'success',
-          message: '发布成功'
-        })
+        if (this.$route.name === 'publish') {
+          // 执行添加操作
+          await this.$http({
+            method: 'POST',
+            url: '/articles',
+            params: {
+              draft
+            },
+            data: this.articleForm
+          })
+          this.$message({
+            type: 'success',
+            message: '发布成功'
+          })
+        } else {
+          // 执行编辑操作
+          await this.$http({
+            method: 'PUT',
+            url: `/articles/${this.$route.params.id}`,
+            params: {
+              draft
+            },
+            data: this.articleForm
+          })
+          this.$message({
+            type: 'success',
+            message: '修改成功'
+          })
+        }
       } catch (err) {
-        this.$message.error('发布失败', err)
+        this.$message.error('操作失败', err)
       }
     }
   }
