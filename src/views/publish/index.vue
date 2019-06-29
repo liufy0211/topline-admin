@@ -24,10 +24,25 @@
             </el-radio-group> -->
           </el-form-item>
           <el-form-item label="频道">
-            <el-select v-model="articleForm.channel_id" placeholder="请选择活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select>
+            <!--
+              组件通信：
+                父传子：Props Down
+                子传父：Events Up
+             -->
+            <!-- 希望有这么一个组件 这个组件我只要用，就加载了文章频道的下拉列表 -->
+            <!-- <article-channel
+              :value="articleForm.channel_id"
+              @input="articleForm.channel_id=$event"
+            ></article-channel> -->
+            <!--
+              v-model 就是：
+                :value="articleForm.channel_id"
+                @input="articleForm.channel_id=$event"
+              简写 默认绑一个value 给子组件 默认监听input事件，input事件发生以后，把数据赋值给事件传过来的参数
+             -->
+            <article-channel
+              v-model="articleForm.channel_id"
+            ></article-channel>
           </el-form-item>
         </el-form>
       <!-- 表单 -->
@@ -37,8 +52,12 @@
 </template>
 
 <script>
+import ArticleChannel from '@/components/article-channel'
 export default {
-  name: '',
+  name: 'AppPublish',
+  components: {
+    ArticleChannel
+  },
   data () {
     return {
       articleForm: {

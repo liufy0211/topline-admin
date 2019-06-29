@@ -19,14 +19,15 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道">
-          <el-select v-model="filterParams.channel_id" clearable>
+          <!-- <el-select v-model="filterParams.channel_id" clearable>
             <el-option
               v-for="item in channels"
               :key="item.id"
               :label="item.name"
               :value="item.id"
             ></el-option>
-          </el-select>
+          </el-select> -->
+          <article-channel v-model="filterParams.channel_id"></article-channel>
         </el-form-item>
         <el-form-item label="时间">
           <!-- 不绑定v-model change时间不触发 api说明 实际上我们要的不是 range_date 它只是为了触发change事件 事件不触发我们也没办法处理我们想要的时间格式-->
@@ -140,9 +141,13 @@
 </template>
 
 <script>
+import ArticleChannel from '@/components/article-channel'
 // import { getUser } from '@/utils/auth'
 export default {
   name: 'ArticleList',
+  components: {
+    ArticleChannel
+  },
   data () {
     return {
       articles: [],
@@ -178,14 +183,16 @@ export default {
         begin_pubdate: '', // 开始时间
         end_pubdate: '' // 结束时间
       },
-      range_date: '', // 时间范围绑定值，这个字段的意义是为了绑定 date 组件出发 change 事件
-      channels: [] // 所有频道
+      range_date: '' // 时间范围绑定值，这个字段的意义是为了绑定 date 组件出发 change 事件
+      // channels: []  所有频道
     }
   },
 
   created () {
+    // 加载文章列表
     this.loadArticles()
-    this.loadChannels()
+    /* 加载频道列表
+    this.loadChannels() */
   },
 
   methods: {
@@ -234,19 +241,19 @@ export default {
       this.filterParams.begin_pubdate = value[0]
       this.filterParams.end_pubdate = value[1]
     },
-    async loadChannels () {
-      try {
-        const data = await this.$http({
-          method: 'GET',
-          url: '/channels'
-        })
-        // console.log(data)
-        this.channels = data.channels
-      } catch (err) {
-        console.log(err)
-        this.$message.error('获取频道数据失败')
-      }
-    },
+    // async loadChannels () {
+    //   try {
+    //     const data = await this.$http({
+    //       method: 'GET',
+    //       url: '/channels'
+    //     })
+    //     // console.log(data)
+    //     this.channels = data.channels
+    //   } catch (err) {
+    //     console.log(err)
+    //     this.$message.error('获取频道数据失败')
+    //   }
+    // },
     handleFilter () {
       // 点击查询按钮，根据表单中的数据查询文章列表
       this.page = 1 // 查询从第一页开始加载数据
