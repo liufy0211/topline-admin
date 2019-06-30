@@ -44,7 +44,7 @@
           <i class="el-icon-menu"></i>
           <span slot="title">评论管理</span>
       </el-menu-item>
-      <el-menu-item index="1-4">
+      <el-menu-item index="/media">
           <i class="el-icon-menu"></i>
           <span slot="title">素材管理</span>
         </el-menu-item>
