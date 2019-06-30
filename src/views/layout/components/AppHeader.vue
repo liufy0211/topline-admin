@@ -3,9 +3,9 @@
     <el-col :span="12">时事热点</el-col>
     <el-col :span="3" :offset="9">
       <el-dropdown trigger="click" @command="handleCommand">
-        <img width="35" :src="userInfo.photo" class="user-avatar">
+        <img width="35" :src="$store.state.user.photo" class="user-avatar">
         <span class="el-dropdown-link">
-          {{ userInfo.name }}<i class="el-icon-arrow-down el-icon--right"></i>
+          {{ $store.state.user.name }}<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="a">用户设置</el-dropdown-item>
@@ -23,17 +23,17 @@
 </template>
 
 <script>
-import { removeUser, getUser } from '@/utils/auth'
+import { removeUser } from '@/utils/auth'
 export default {
   name: 'AppHeader',
   data () {
     return {
-      userInfo: {}
+      // userInfo: {}
     }
   },
   created () {
     // this.userInfo = JSON.parse(window.localStorage.getItem('user_info'))
-    this.userInfo = getUser()
+    // this.userInfo = getUser()
   },
   methods: {
     handleLogout () {
