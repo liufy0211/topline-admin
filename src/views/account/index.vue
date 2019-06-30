@@ -26,6 +26,25 @@
           </el-form-item>
         </el-form>
       </el-col>
+      <el-col :offset="2" :span="10">
+        <p>头像设置</p>
+        <!--
+            文件上传组件
+              action 上传请求地址 必须的
+              show-file-list 是否显示文件预览列表
+              on-success 文件上传成功触发的回调 （需要上传之前或者成功之后，做一些业务代码操作，那就可以用它）
+              before-upload 文件上传之前触发的回调
+         -->
+        <el-upload
+          class="avatar-uploader"
+          action="https://jsonplaceholder.typicode.com/posts/"
+          :show-file-list="false">
+          <!-- 用来预览上传的图片 如果有图片才显示img-->
+          <img v-if="user.photo" :src="user.photo" class="avatar">
+          <!-- i 标签就是按钮之类 +号 -->
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </el-col>
     </el-row>
   </el-card>
 </template>
@@ -82,6 +101,32 @@ export default {
   }
 }
 </script>
-
+<!-- 无作用域的样式，作用到全局 -->
+<style>
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+</style>
+<!-- 有作用域的样式，仅对当前组件有效 -->
 <style lang="less" scoped>
 </style>
