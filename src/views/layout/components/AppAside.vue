@@ -75,7 +75,7 @@
         <span slot="title">粉丝列表</span>
       </el-menu-item>
       </el-submenu>
-     <el-menu-item index="3">
+     <el-menu-item index="/account">
       <i class="iconfont icon111"></i>
       <span slot="title">账户管理</span>
     </el-menu-item>
