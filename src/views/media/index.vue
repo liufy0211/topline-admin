@@ -17,7 +17,12 @@
           <img :src="item.url" class="image" style="max-width: 100%">
           <div style="padding: 10px;">
             <div class="bottom clearfix">
-              <el-button plain type="primary" :icon="item.is_collected ? 'el-icon-star-on' : 'el-icon-star-off'" circle></el-button>
+              <el-button
+                plain type="primary"
+                :icon="item.is_collected ? 'el-icon-star-on' : 'el-icon-star-off'"
+                circle
+                @click="handleCollect(item)"
+              ></el-button>
               <el-button plain type="primary" icon="el-icon-delete" circle></el-button>
             </div>
           </div>
@@ -58,6 +63,26 @@ export default {
       } catch (err) {
         console.log(err)
         this.$message.error('加载图片列表失败')
+      }
+    },
+    async handleCollect (item) {
+      const collect = !item.is_collected
+      try {
+        const data = await this.$http({
+          method: 'PUT',
+          url: `/user/images/${item.id}`,
+          data: {
+            collect
+          }
+        })
+        item.is_collected = data.collect
+        this.$message({
+          type: 'success',
+          message: `${collect ? '' : '取消'}收藏成功`
+        })
+      } catch (err) {
+        console.log(err)
+        this.$message.error('收藏失败')
       }
     }
   }
