@@ -81,6 +81,7 @@ axios.interceptors.response.use(response => { // >= 200 && 400 的状态码会�
     return response.data
   }
 }, error => { // >= 400 的状态码会进入这里
+  console.dir(error)
   // console.log('状态码异常', error)
   // console.dir(error) 错误对象
   // 如果用户 token 无效, 让其跳转到登录页面
