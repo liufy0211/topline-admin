@@ -54,7 +54,7 @@
         <i class="el-icon-location"></i>
         <span>粉丝管理</span>
       </template>
-      <el-menu-item index="2-1">
+      <el-menu-item index="/fans">
         <i class="el-icon-menu"></i>
         <span slot="title">图文数据</span>
       </el-menu-item>
