@@ -5,8 +5,16 @@
     </div>
     <div class="action">
       <el-radio-group v-model="active">
-        <el-radio-button label="全部"></el-radio-button>
-        <el-radio-button label="收藏"></el-radio-button>
+        <!--
+          click、dblclick 是原生的DOM 事件
+          el-xxx 是什么？ 这是组件标签
+          el-button 怎么就有呢？ 因为这个组件将内部的点击事件做了对外发布 $emit(内部做了自定义事件发布处理)
+            使用 @click 给el-button 注册点击事件，只是让你看起来像是在注册原生事件，实质是它在内部将原生的DOM的点击事件做了对外发布 $emit('click',事件参数)
+
+            如果想要给一个组件注册一个原生事件，@原生事件.native
+        -->
+        <el-radio-button label="全部" @click.native="loadImages(false)"></el-radio-button>
+        <el-radio-button label="收藏" @click.native="loadImages(true)"></el-radio-button>
       </el-radio-group>
       <el-button type="primary">上传图片</el-button>
     </div>
