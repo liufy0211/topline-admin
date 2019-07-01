@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "abc": "git add . && git commit"
+    "push": "git add . && git commit && git push"
   },
   "dependencies": {
     "axios": "^0.19.0",
